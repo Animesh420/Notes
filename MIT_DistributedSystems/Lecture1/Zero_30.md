@@ -1,0 +1,27 @@
+- Distributed Systems:
+    - A set of cooperating computers that communicate over a network to work
+    coherently. Eg: storage for big websites, P2P, map reduce
+    - Gains from Distributed system
+        - Parallelism
+        - Fault Tolerance
+        - Some problems have natural affinity to use distributed systems
+        - Security and isolation
+    - Difficulties with Distributed system
+        - Failures are difficult to detect, (Network or nodes)
+        - Complicated Concurrent Programming problems
+        - Performance
+    - Infrastructure for distributed systems:
+        - Storage : Example: HDFS (Distributed File system)
+        - Communications : Example: RPC
+        - Computations : Example : Map Reduce (Computation system)
+    - Ideal to have non distributed abstractions that hide underlying distributed architecture
+    - Implementation
+        - RPC
+        - Threads (way of structuring concurrent operations)
+        - Concurrency control
+    - Performance in distributed systems
+        - Scalable speedup
+        - Adding more machines decreases problem solving time
+    - Fault Tolerance
+        - 
+      
