@@ -1,4 +1,5 @@
-- Distributed Systems:
+- 0-30
+- Distributed Systems
     - A set of cooperating computers that communicate over a network to work
     coherently. Eg: storage for big websites, P2P, map reduce
     - Gains from Distributed system
@@ -22,6 +23,29 @@
     - Performance in distributed systems
         - Scalable speedup
         - Adding more machines decreases problem solving time
+    - 30-60
     - Fault Tolerance
-        - 
-      
+        - Constant failures in distributed systems
+        - Criteria for fault tolerance
+            - Availability till a certain set of failures
+            -  Recoverability : The system can get going again
+          
+        - Some tools for fault tolerance
+            - Non-Volatile storage: Costly to write multiple times, but important for recoverability
+            - Replication: Management of replicated copies is tricky, effort is put in to maintain synchronising
+    - Consistency
+        - Example: Key value distributed storage applications
+          - Put(key, value) and Get(key) are main operations
+          - For performance and fault tolerance we have more than one copy of data floating around
+          - For a replicated system, there may be different values of key value in different systems.
+          - Strong consistency is a very expensive spec to implement, weak consistency is easier
+          - In a strong consistency case, you need a lot of communication to maintain correct state everywhere
+          - We need replicas to have independent failure probabilities, so replicase are usually put in a distant location
+          - In this case communication latency is quite high to maintain strong consistency
+    
+    - Example of map reduce
+        - Word count 
+          - Map stage splits the sentence into words and emit key value  pair of 1
+          - Reduce stage aggregates the words by the count emitted from all map outputs
+    
+    
