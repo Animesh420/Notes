@@ -1,6 +1,6 @@
 - P2P systems are distributed systems that seriously focused on scalability with respect to number of nodes
 - P2P techniques are common in cloud computing system, Key Value stores like cassandra dn Riak use Chord(a P2P system)
-p2p hasing
+p2p hashing
 -  Widely deployed P2P systems
     - Napster
     - Gnutella
@@ -107,7 +107,30 @@ p2p hasing
         - Ways to reduce frequency of pings and pongs: Multiples, cache results, cache query and query hit messages
         - Can use a central server to act as a proxy for low bandwidth servers
         - Freeloaders possess the challenge of over burdening a P2P system
-        
+    
+FastTrack
+    - Maintains an overlay graph like gnutella with supernodes 
+    - Super nodes store directory information of a subset of nearby <filename, peer pointer> information similar to Napster
+    - Super node membership changes over time
+    - A peer is judged for its reputation based on its contribution like prolonged connectivity and more uploads
+    then its reputation level goes up, when the participation level crosses a threshold, the peer becomes a supernode.
+    - Peers can thus search faster, by finding the nearest supernode
+    - Incentive to be a supernode, is that lot of queries become local calls
+
+Bittorrent 
+    - It has one tracker per one or multiple file
+    - The tracker maintains a list of peers that are currently transferring the file by receiving heart beat messages
+    from these peers
+    - Two kinds of peers:
+        - Seed: They have the full file 
+        - Leechers: The file is split up into equal sized blocks and each leecher has a variable number of file blocks
+    - When a peer starts to download a file, it fetches the file from LOCAL RAREST FIRST. It prefers that block
+    that is least replicated among neighbors.
+    -  Incentives are provided by TIT FOR TAT bandwidth usage, the peer provides blocks to neighbors that 
+    provided it the best download rate in the past.
+    - Choking: It limits the number of neighbors to which current uploads are allowed.
+        - You re-evaluate this set periodically.
+        - Choking helps peers to limit how many other peers they are uploading to so that the upload bandwidth is not overwhelmed
         
     
         
