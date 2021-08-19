@@ -70,7 +70,6 @@
         - So for example if our file id comes out to be 42, then it is stored at peer 45 which is 
         in the peer circle  16 -> 32 -> 45 -> 80 -> 96 -> 112 -> 16
           
-
     - Search in consistent hashing
         - Let us say we have a request to search a file with file id 42 at node 80 in the same peer circle
         - Search algorithm :
@@ -83,7 +82,7 @@
 
             - so the largest finger table entry for N=80, which is to left of K=42, (in the circle) is 16
             - Now for 16 finger table is {0: 32, 1: 32, 2: 32, 3: 32, 4: 32, 5: 80, 6: 80} # calculated same as for N=80
-            - Now 16 follows the same rule, forwards the request to nearest neighbor that is to left of 42, i.e. 32
+            - Now 16 follows the same rule, forwards the request to the nearest neighbor that is to left of 42, i.e. 32
             - Now at 32 the finger table is {0: 45, 1: 45, 2: 45, 3: 45, 4: 80, 5: 80, 6: 96} so it does not have any entry which is left of 42
             - so it passes on to its successor which N=45 and for K=42 file is stored at next greater peer id that is 45
             - This way we find the file
@@ -94,5 +93,49 @@
 
     - The finger table may give wrong values if the peers have died or moved out because of churn because then the finger table itself may be inconsistent
 
+- Effects of failures and churn in Chord:
+  
+    When an intermediate node dies
+        - In the same example let us say if node 32, (clockwise to node 16) fails 
+        and corresponding finger tables are not updated, node 16 cannot forward request to any node as it is stuck.
+        - One solution is for nodes to maintain a list of successors not just one successor, let say "R" successors
+        - How large should R be ? R = 2Log(N) suffices to maintain lookup correctness
+        - Lets say 50 % of nodes fail
+        - Probability(at given node, at least one successor alive) = 1 - (0.5)^(2log(N)) = 1 - (N^-2)
+        - Probability(above is true for all alive nodes) = (1 - (N^-2))^(N/2)  = exp(-1/2N) (approx) == 1 (almost)
     
+    - When the node with file dies
+        - The file is copied and stored at one successor and one predecessor of the node where file is stored
+        - This helps in load balancing also
+
+    - Dealing with Dynamic Changes
+        - Churn refers to (peer failure, peer leaving, new peer joining)
+        - To keep system consistent one needs to update Successors and finger table entries and copy keys
+        
+        - NEW PEER JOINING
+            - A new peer joins a system by contacting a well known process called Introducer via DNS
+            - The Introducer gives it an ip addresss of some peer in the system
+            - It can ask the peer to route to its own id, by chord routing protocol
+            - For example in the chord ring 16 -> 32 -> 45 -> 80 -> 96 -> 112 -> 16, when 40 enters and it gets
+            45 as a peer id, it asks 45 to route to it. 
+            - This way 45 comes to know of 40 as its predecessor
+            - The process can similarly give 32, and this 32 knows its successor
+            - This way 40 knows both aout 32 (pred) and 45 (succ)
+            - STABILIZATION PROTOCOL:
+                - Stabilization protocol runs on each node in a periodic fashion
+                - Each node asks for finger table of its successor and predecessor and thus expands its knowledge of the 
+                nodes in the system
+                - As the churn happens stabilization protocol tries to catch up
+            - As a new node joins, keys are copied from its succ. and pred. which is file transfer
+            - Some nodes may need to update their finger table entry because of adding of new node
+            - A new peer affects O(logN) peers in the ring
+            - This applies to case of concurrent failures and strong stability takes O(N^2) stabilization rounds
     
+    - Effects of churn    
+        - High churn leads to high number of runs of stabilization protocol which is costly
+        - File copy is also expensive for heavy files like mp3
+        - One option is to store file pointers from source, rather than whole files in each system
+    
+    Unifrom Hashing 
+        - Since hash function are not uniform each node acts as a set of virtual set of nodes, to achieve better load 
+        balancing
