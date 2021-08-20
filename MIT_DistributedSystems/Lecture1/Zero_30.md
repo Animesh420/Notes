@@ -45,7 +45,28 @@
     
     - Example of map reduce
         - Word count 
-          - Map stage splits the sentence into words and emit key value  pair of 1
+          - Map stage splits the sentence into words and emit key value tuple of (word, 1)
           - Reduce stage aggregates the words by the count emitted from all map outputs
+    
+        - Map stage produces output that is available for each key
+        - Before starting any reduce stage,  all map stage outputs should have been generated
+        - Map Reduce reads and writes to Network File System (GFS - Google File System)
+        - GFS splits data into 64kb chunks distributed uniformly over multiple servers
+        - To run map reduce you need a network file system, essential for good throughput
+        -  A simulation of how efficiently map reduce worked
+            - A master process took care of assigning map tasks to different inputs
+            - Inputs to map tasks are usually files which are stored in servers under GFS
+            - The master process, cleverly figures out which file is in which server under GFS
+            - The process of running a map task is executed on the same server which has the input
+            - Thus, storage and computation happen on the same server in this case to reduce network latency and 
+            run as if it were a local access event with high probability.
+              
+            - Sharing the output of map phase with different reducers is the expensive part where the map output needs to
+            be grouped by a common key and passed on to reducer over a network which is a costly step.
+              
+            - Modern systems use stream based approach to reduce the network latency
+            - Modern data centers have better network throughput due to faster network speeds available
+    
+
     
     
