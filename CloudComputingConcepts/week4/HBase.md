@@ -1,0 +1,30 @@
+HBase
+    - Google big table was first blob based storage system
+    - Yahoo open sourced it as HBase
+    - HBase is a No SQL solution that support consistency over availability unlike Cassandra
+    - API Functions
+        - Get/ Pull (row)
+        - Scan (row range, filter) - range queries
+        - Multi Put
+    -  HBase main players
+        - Client - One who sends queries reads/writes to hbase system
+        - Servers - One who answer to the client requests
+        - The coordination between client and server is done by zookeeper which is a small group of servers
+        running PAXOS like (ZAB protocol) consensus protocol
+        - The HBase system has multiple HRegionServers
+        - HRegionServers contain multiple HRegions
+        - Hregions contain multiple stores
+        - Each store contains multiple StoreFiles
+        - Each store file contains a Hfile
+        - HFile is stored in HDFS
+        - Store contains a MemStore
+        - HRegionServer has HLog
+        - HMaster talks with zookeeper and can manage the HDFS
+    - HBase table
+        - Split into multiple regions, replicated across servers
+        - Column Family = subset of column with similar query patterns
+        - One store per combination of column family + region
+            - MemStore: for each store, in-memory updates to the store, flushed to disk, when full
+            - StoreFile: for each store for each region where the data lives
+            - HFile : SSTable from Google's big table, similar to sstable in cassandra
+    - HFile
