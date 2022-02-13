@@ -110,17 +110,4 @@ Gossip or Epidemic protocols
             - Gossip implementations:
                 - AWS EC2 and S3, Cassandra
                 
-            
-            
-                    
-       
-  
-  
-          
-            
 
-
-Failure detection and Membership Protocol
-
-
-Grid Computing
