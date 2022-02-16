@@ -1,0 +1,91 @@
+Scalable databases:
+  - data storage capcity
+  - data lifecycle, how long the data is going to stay
+  - data accesibility (read and writes)
+  - available and reliable
+
+Questions:
+  - Nature of data? structured, documents, free flowing like text
+  - Volume of data? Total volumn, rate of ingestion, rate of growth, lifecycle
+  - Usage of data:
+      - Transaction =>  ACID is important
+      - Monitoring & Compliancec => Query is not important
+      - Analytics => Query is most important
+
+A view of data modelling:
+  - Identify domain specific entities
+  - Model how entities relate - (One to One, Many to One, Many to Many etc)
+  - Attributes of entities, (things help to identify the entity)
+  - Plan for changes in entity relationship
+
+How muchh data?:
+  - What domain events lead to generation of new data
+  - Expected rate of growth in data generation
+  - Over time will the data be aggregated or reduced
+
+How is data used?:
+  - Interactive transaction in support of domain event or process
+  - Decision making
+  - Anamoly detection
+
+Use cases of data?:
+  - Examples
+    - sales transaction data for fullfilling orders
+    - geolocation data for triggering offers based on location of users
+  - Data may be used in future as well as immediately upon collection/ingestion
+  - Use case leads to workloads
+    - how data is generated, ingested, stored
+    - how data is reported, analyzed and visualized
+  - Access Patterns (examples):
+      - Read/Write intensive => Ex, Transaction processing, need low latency and works on small data
+      - Bulk load Intensive => Ex, Data Warehousing, ok with high latency and query vast data
+      - Same data from a source can be used for decision making, transaction management, anomaly detection etc
+      - Diverse datasets about customer like sales, web browsing, product reviews and demographics are analyzed to increase gross margin
+      - Workloads
+        - Driven by organization need for data
+        - multi step
+        - have dependencies
+
+Security and Compliance:
+  - Security:
+      - Confidentiality, availability and integrity of data,
+      - Focus on who can do what to which pieces of data
+      - Confidentiality:
+          - Principle of least privilege
+          - Identity and Access Management
+          - Encryption in on-transit and in-rest
+          - Data loss prevention
+      - Availability:
+          - Replication of data
+          - High recoverability with some recovert point objective
+      - Integrity:
+          - Calculating checkcum/ message digest
+          - Data Audits
+
+  - Compliance:
+      - Institutional scrutiny
+      - Governemnt rules on what we do with data
+      - Dictates on our roles and responsibility with data
+      - Sources of compliance:
+          - Organization
+          - Industry
+          - Government organization like HIPAA and GDPR
+
+Estimate data growth:
+  - This influences data architecture, data model and costs
+  - Growth factor depends on:
+    - Number of users, sensors, customers and so on
+    - New data sources, including external sources
+    - Data lifecycle
+    - Increased application use
+    - New workloads, changes in business process, ETL that consume more data
+    - Expanded data sources:
+      - Human based
+      - IOT based
+      - Data augmentation using third party data sources
+    - Data lifecycle management:
+      - Not all data have same access pattern
+      - Older data is less likely to be queries in case of timeseries/monitoring
+      - Use of tiered storage, hot storage, nearline storage, cold line storage
+      - When do you remove data from database and keep in lower cost object storage
+

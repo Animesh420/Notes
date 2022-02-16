@@ -1,0 +1,77 @@
+Datastore options:
+  - Relational :
+    - To be used with fixed schema
+    - Good for data with a structure
+    - Support for ACID, required for business operation no partial ordering
+  - No SQL:
+    - Document databases:
+      - Designed for semistructured data like JSON
+      - Related data is stored together rather than joins
+    - Wide column databases:
+      - Good for semi structured data
+      - Modelled around sparse multidimensional matrix
+      - Related data stored together in single row
+      - Columns may be grouped together called column family
+      - rows are defined as collection of column families
+      - Eg Cassandra, Google Big Table
+    - Graph databases:
+      - Good for highly connected data 
+      - Nodes, edges and relationships between graphs
+      - Neo 4j
+  - Analytical:
+    - Structured databases may use SQL but not be RDBMS
+    - Eg Google Big Query does not have indexes
+    - Not designed for transactions
+
+Schemas:
+  - Collection of related database objects
+  - In RDBMS:
+    - includes tables, indexes, sequences, triggers, constraints
+    - grouping factor is all these entities are from a single domain
+    - a domain is a set of entities which have a logical relationship
+    - a domain, means a data that is used together having similar data lifecycle
+    - one domain may have multiple schemas, domains are divided also based on sub units
+    - Examples:
+      - Policies and Claims  (entities) in Insurance  (domain)
+      - Supplies and schedule (entities) in Manufacturing (domain)
+      - Sales and inventory (entities) in Retail (domain)
+    
+Identify the entities:
+  - Logical representation of things in a domain
+  - Entities are the nouns, 80-20 rule can be applied, 80% work is done by 20% of entities
+  - Describing the business process tells about the entities
+  - Examples:
+    - Monitoring system:
+      - Sensor collects measurements, transmit it to edge devices in buildings and transmits it to cloud data store 
+  - Questions to ask:
+    - What business process is being modeled
+    - What business objects or artifacts are used in the process
+    - What is being analyzed, what is needed to perform the analysis
+
+High level physical design:
+  - How data is organized on persistent storage
+  - Tablespace at the schema level, groups table at schema level
+  - Partitions used at the table and index level
+  - Both tablespaces and partitions allow one to take advantage of parallel reads and parallel writes
+  - Parallelization is important for high performing databases
+  - Caching is used to improve read performance
+  - Tablespace:
+    - Storage location for physically storing data
+    - data from related tables and indexes stored in same table space
+    - Examples:
+      - If we have a table and an index on that table we might want to put them on different table spaces
+      - When one is trying to read from a table and reading/writing to index, we dont compete for same IO resources
+    - Data within a table space is managed as a single unit
+  
+  - Partitions are used for segmenting data within a table
+  - A table is broken up in sub sections called partition
+  - We decide which subsection each row goes to depending on one or more attributes called the partition key
+  - Example
+    - Time based partition for timeseries like data
+    - List based partition, like partitioning based on certain columns 
+    like product type (electronics, clothes etc) in a inventory database
+    - Sometimes objective of partition is to divide to provide equal work load on all sides so a
+    hash based parition is used
+    
+  
+  
