@@ -1,0 +1,94 @@
+Questions while designing databases:
+  - What will the data model look like
+  - How will I represent the entities in the domain
+
+Data ingestion:
+  - Process of aquiring data prior to analyzing it or writing it to persistent storage
+  - Different scales of ingestion:
+    - Human scale ingestion:
+      - Volume of ingestion is function of number of humans using the service and their frequency
+      - Example -> (Web application, Interactive apps on mobile devices, enterprise applications)
+    - Machine scale ingestion:
+      - Volume of ingestion is function of number of devices connected, rate of data generation and size of each message
+      -  Example -> (App data collection on mobile devices, IoT, App monitoring, Credit card transaction processing)
+
+Data ingestion strategies:
+  - Human scale data ingestion
+    - Relatively small amount of data, managed by CRUD like interface
+    - Data is ingested directly by application and persisted to database
+    - Data is read many more times than being written
+    - Query and filter using variety of attribute
+    - Frequency of operations on data a function of workflows, need to understand relationships between entities
+  - Machine scale data ingestion
+    - Data is large, and has spiky nature in ingestion
+    - Data is usually written to a buffer or queue,  helps in decoupling ingestion from application processing
+    - If we do have spikes in ingestion they do not create spikes in application processing
+    - Most recent data is most valuable, older data is used for training machine learning models,  identifying trends etc
+    - Often data is processed before persistence like anomaly detection
+
+User interfaces for data ingestion:
+  - Data can be written to DB by synchronously and asynchronously
+  - Synchronous (Usually human scale):
+    - Application reads and writes data to the database, in a interface - business logic - database combination
+    - Data is persisted as it is ingested in human scale data ingestion 
+    - Application typically waits for database to finish writing data before continuing
+    - Interfaces for humans send varying amount of data over time at varying frequencies
+    - Mornings less, afternoon more or some other distribution of data
+    - When there is this much variation in data loads, we need to scale our application and database to meet the peak demand
+    - Estimating volume and latency:
+      - Average size of payload sent from interface to application
+      - Statistical distribution of data to understand when  to scale the application during peaks
+      - Average time to persist data before returning, include time to write data, update indexes, write audit logs etc
+  - Asynchronous (Usually machine scale):
+    - Ingestion endpoint is sink for machine scale generated data, it does lightweight processing
+    - Database is last stage in pipeline of workflow, (in synchronous it is hierarchy, in async it is stage by stage)
+    - Ingestion endpoint writes the data to a buffer or queue
+    - Application subscribes  to the queue and a Push/Pull based mechanism exists to fetch data from queues
+    - Estimating volume and latency:
+      - Small average size of payload with conistent rate of data generation
+      - Average time to send data to ingestion point (network latency)
+      - Writing to database is independent from data ingestion as data is buffered
+    
+Message queues:
+  - Highly scalable and able to write data with low latency
+  - Examples, Apache Kafka, Google Pub Sub
+  - Google Pub Sub: 
+    - Managed service and globally scalable infrastructure
+    - Handles both push and pull subscriptions
+    - Guarantees at least one delivery
+    - Message needs to be acknowledged else it is returned to queue
+    - Messages may arrive out of order
+  - Apache Kafka:
+    - Streaming log that can be used as message queu
+    - Reread messages
+    - Set retention period (possible infinite) to use as a persistent data store
+    - Use consumer groups instead of subscriptions
+
+Event sourcing:
+  - Limits of CRUD model
+    - Read from data store, processes it modifies it and writes back to disk
+    - The rows on table in data store is locked inside the transaction and transaction prevents data anomalies
+    - It limits scalability
+  - Event sourcing
+    - We record events that are changes to data
+    - We only write data it is never updated
+    - Log of operations on data
+    - Lazy evaluation
+    - We keep a  state of the world version of the data incrementally, decoupling writing to reading
+    - This is called materialized view, materialzed views support read operations
+    - Writes are very fast, reads are slow with eventual consistency
+
+Command Query Responsibility Separation (CQRS):
+  - Separating reads from write operation
+  - One can scale either reads or writes independently
+  - Command Model:
+    - Applications send data change information
+    - Executes logic to validate and process
+    - Updates database
+    - Tune for write performance
+  - Query Models:
+    - Query model can be written as the queries in real world would use data
+    - Queries read from database and update a presentation model
+    - Query model designed according to read patterns
+    - Reduces query complexity
+  
