@@ -1,1 +1,121 @@
+Querying a database:
+  - Querying is a heavy workload on database
+  - For efficient and scalable querying we need to design the data model based on query patterns (logical designing)
+  - After logical designing, we need to think of physical data model or the physical implementation
+  - Like ingestion where the categories are Human scale ingestion and Machine scale ingestion, for querying the categories are transactional and analytical queries
+  - Transaction querying:
+    - Targets small number of rows
+    - Large number of columns
+    - Transactional queries are focussed on gathering the entire row or many columns from the row,
+    - It makes sense to store the data in a way that all of the columns in a row are close together
+    - Liberal use of indexes, columns used on where clause are good candidates to put an index on
+    - Too many index will degrade the write performance
+    - Complex joins because data is in 2NF or 3NF form
+  - Analytical querying:
+    - Targets a large number of rows
+    - Small number of columns
+    - It makes more sense to store the data in a way that specific columns for all rows are close together
+    - Indexes used in star schema model
+    - Minimal join complexity, denormalized form
+  
+Indexing for transaction queries:
+  - Reduces read latency and help enforce constraints
+  - Reduces need to scan data blocks
+  - Comes with cost of additinal reads and writes, reading index is overhead, writing to new index is overhead
+  - Higher the cardinality, (number of unique values) in index, the better the performance improvement
+  - Rule of thumn, to creae indexes that return less than 10% of data
+  - What kind of storage is used to store indexes is important:
+     - In memory indexes (100 ns) < SSD indexes (1 ms) < HDD indexes (20 ms)
+  - Type of indexes:
+    - B Tree, Bitmap, Hash, Special Purpose Indexes
+    - B Tree:
+      - Lookup in B Tree index is order of O(Log(# of rows in the table))
+      - Data is stored hierarchially and searching is similar to BST searching
+    - Bitmap indexes:
+      - useful for boolean scenarios, bit array is used to store choices
+      - bitmap indexes  work with low cardinality on index
+      - Fast filtering based on bit logic
+      - useful for read intensive, low writing
+      - write intensive use cases may trigger a bitmap indexing in postgres
+      - Some db allow one to create bitmap indexes explicitly
+    - Hash indexes: 
+      - Function for mapping arbitrary length data to a fixed-size string
+      - Hash values are virtually unique
+      - Hash indexes use hash function, they are generally used for equality comparison
+      - No order preserving the hash indexes therefore they are not good for range scans
+      - They are smaller than B Tree index and have comparable build and access times
+    
+Materialized Views:
+  - Results of an executed query are persisted at another location
+  - Persisted results are returned in event of same query being executed again
+  - Trading space for time and compute resources
+  - When to use:
+    - Ideal for queries which take long time to return results
+    - Complex queries, aggregation are ideal
+    - Good for separating reading and writing applications
+  - Concerns:
+    - Eventual consistency
+    - cost of updating materialized view
+    - concurrenct reads during update
+    - size of materialized view data
+    - refresh frequency
 
+Read Replcas:
+  - Nodes in a distributed setup that keep copy of the database (from a primary node)
+  - When database is updated read replicas are also updated
+  - Used to shift the read load away from primary to read replicas
+  - primary node can focus on writes
+  - Multiple replicas can scale to meet read load
+  - Leads to eventual consistency
+  - Ideal for skewed read to write ratios
+
+Write-Ahead Log (WAL file):
+  - append only record of atomic changes to database, needed for ACID transactions
+  - can be used as a source of data for creating read replicas
+  - When data is sent to database for writing
+    - db writes it to RAM
+    - db writes it to WAL file (write ahead log)
+    - db writes it to persistent storage as well
+    - we have two writes, because WAL writes can be used to recover in case of crash
+    when writes to persistent storage have failed
+  - Asynchrnous replication:
+    - Make copies of WAL file or chunks of WAL file asynchronously
+     and ship it to read replica node
+    - since data is only written to primary node, it has high performance
+    - read replicas are updated eventually
+    - highest risk of data loss
+  - Synchronous write:
+    - Writes to primary node, changes WAL file of both
+      primary and read replica nodes synchronously
+    - medium write performance
+    - low risk of data loss
+  - Synchronous apply:
+    - Lowest write performance
+    - Data is synchronously replicated to WAL of replica nodes
+    - And tables are also updated in replica node to make it queryable
+
+Denormalizing for analytical queries:
+  - Normalization is done to avoid data anamolies
+  - 3NF => Everything is associated with the key
+  - Good for modelling complex relationships
+  - 3NF form helps to break down data, in terms of frequency of its changes
+  - Bad for query performance as lot of joins are needed
+  - Star schema, denormalization for analytics
+  - Bitmap indexes are useful for dimension and fact tables
+
+Aggregation and sampling for analytical queries:
+  - Aggregation is useful for time series data
+  - Data that is more recent is more useful
+  - Older data is useful in aggregate
+  - Historical data can be stored as a coarser aggregates
+  - Historical aggregates help query the most recent data with highest details while older data is represented by its aggregate like mean, median, mode etc
+  - For time series, recent data may be queried in terms of seconds, old data can be queried in terms of minutes or days
+  - Historical aggregate brings faster read times because it reduces the data that is scanned, retrieved
+  - Loss of details in historical data
+  - Sampling:
+    - Sample the data by representing population by a collection of data points
+    - This technique is called Approximate query processing
+    - One needs to understand data distribution for this
+    - Assumptions can be made based on statistics and analysis
+    - Approximate Query processing is available as an add on
+    -

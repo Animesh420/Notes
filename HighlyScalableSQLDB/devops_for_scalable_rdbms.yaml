@@ -1,0 +1,100 @@
+Monitoring relational databases:
+  - Questions in database development:
+    - If memory utilization and CPU utilization is always maxing out, throughput is low
+    - What queries are taking the most time
+    - How much work is done
+    - Change management with database
+    - Logging
+  - Resource Monitoring:
+    - Compute
+    - Memory
+    - Persistent storage
+    - Network Capacity Utilization
+    - CPU 
+  - Monitoring query times:
+    - pg_stat is tool in postgres
+    - it gives number of time a query is called, total time spent executing it, number of blocks read and written, total read and write time
+    - using this we can check where the query is spending maximum time, for example if we are reading too many blocks and writing too few then maybe block size needs to be changed
+    - If a query is called very high number of times, then it makes sense to cache its results
+  - Throughput:
+    - Completed transactions per second
+    - Connections per second
+    - Queue length (where requests are queued)
+    - Numbers of block read or written
+  - Changes to database:
+    - Schema change, Index change, changing relationship between a number of tables
+    - bulk data loads
+    - security sensitive changes
+  - Logging:
+    - Metrics to help identify when a problem exists
+    - Log helps to identify cause of the problem
+    - Consider consolidated logging
+
+Reducing latency with caching:
+  - Temporal locality, makes caching profitable
+  - Eventual consistency for lower-latency reads
+  - Caching strageies:
+    - Cache Aside
+      - Client request goes to  cache (coordinated by application) instead of database, a cache sits parallel to database
+      - When data is not present in cache, application reads it from database and updates the cache, the cache is populated over time
+    - Read Through:
+      - application queries the cache for data, cache returns the data if it has it
+      - if the cache does not have the data, it queries the database, self updates and sends back response to the applicaation
+      - Data is captured on reads
+      - Risk of failure if the cache fails
+    - Write Through: 
+      -  Same setup as Read Through but data is captured on writes, all writes are written to cache which writes back to database
+    - Write back/write behind:
+      - Constantly write to cache but write to database periodically
+      - May lead to some data loss
+    
+    - Write around:
+      - Direct path from application to database, application writes to database directly
+      - Only data that is read goes through the cache
+  - Cache Invalidation:
+    - Expiration time for cache data
+    - Consistency check, match the data in cache with the data in application
+    - Application logic invalidation, invalidation of cache is a responsibility of application
+
+Partitioning for scalability:
+  - scanning the data is the costliest operation in database
+  - reducing the amount of data to be scanned is essential for performance
+  - Subdividing the large tables, based on rows or columns into partitions
+  - Horizontal Partitioning:
+    - Partition by rows
+    - Limit scans to subset of partitions
+    - Partitions can have local indexes for efficient querying
+    - horizontal partitoning good for inserting and deleting data
+    - Range Partitioning:
+      - Partitioning by partitioning key, columns can be dates, numeric or alphabetical ranges
+      - Doesnt always give good distribution of data
+    - List Partitionoing:
+      - Partitioning on non overlapping keys
+      - Partitioning on low cardinality key sets is a good option
+    - Hash Partitioning:
+      - Use a hash function to do the partitioning
+  - Vertical Partitioning: 
+    - Partition by columns
+    - Increased number of rows in data block
+    - Global indexes for each partitioning
+    - Can reduce I/O
+    - Columnar data storage offers better data compression
+    - Less locking per row 
+
+High availability architechtures:
+  - Multiple servers and data replicated across multiple servers
+  - Servers are put in different physical locations
+  - Redundant dependent systems like network, power
+  - Distributed relational database, difficult to implement
+  - Need common time across servers
+  - Example: Google cloud spanner
+  - Replicatoin from file system using Colossus
+  - Writing to cloud spanner, pessimistic locking and two phase commit
+
+Data lifecycle management:
+  - Categorization of data for storage and future of data based on busines use case, sensitivity
+  - Audit and compliance driven storage
+  - Data can be stored in cold storage for machine learning or data science
+  - Treat different types of data differently, have tiered storage, old data is slow to access
+  - Use different file formats avro or parquet, or store in infrequent access options in cloud providers
+  - Old data can exported in database-specific format if it needs to be consumed
